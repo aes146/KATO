@@ -1,8 +1,5 @@
 {
-  
-{
   "hosting": {
-    "site": "thekatoapp",
     "public": "public",
     "ignore": [
       "firebase.json",
