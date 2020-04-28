@@ -1,0 +1,104 @@
+{% extends 'layout.html' %}
+{% block body %}
+    <script>
+        var newScheduleRef = database.ref('schedule_info')
+        var first_schedule = false;
+        var total_schedules = 0;
+        
+        //grabs the current user's schedule_info data
+        newScheduleRef.child("{{ user_data['user_id'] }}").on('value', function(snapshot) {
+            var schedule_data = snapshot.val()
+            if (schedule_data.num_schedules  == null){
+                first_schedule = true;
+            }else{
+                total_schedules = parseInt(schedule_data.num_schedules)
+            }
+        });
+
+        function posting()
+        {
+            var refs = database.ref('schedules');
+            var uid = "{{ user_data['user_id'] }}"
+            var name = "{{ user_data['name'] }}"
+            var email = "{{ user_data['email'] }}"
+
+            var data = {
+                department: document.getElementById("department").value,
+                course: document.getElementById("course").value,
+                section: document.getElementById("section").value,
+                term: document.getElementById("term").value,
+                user_id: uid,
+                user_name: name,
+                user_email: email
+            }
+            // must add username to trip object 
+            var string_key = document.getElementById("department").value+"-"+document.getElementById("course").value+"-"+uid;
+            refs.child(string_key).set(data);
+            //update user's trips driven profile variable
+            if (first_schedule){
+                database.ref("schedule_info/"+"{{ user_data['user_id'] }}/"+"num_schedules").set(1);
+            }else{
+                database.ref("schedule_info/"+"{{ user_data['user_id'] }}").update({num_schedules: total_schedules + 1 });
+            }
+
+            location.href='/my_schedules';
+        }
+    </script>
+
+
+    <section class="pb_cover_v3 overflow-hidden cover-bg-indigo cover-bg-opacity text-left pb_gradient_v1 pb_slant-light" id="section-home">
+      <div class="container">
+        <div class="row align-items-center justify-content-center">
+
+            <!-- start of form -->
+            <div class="form-div">
+            <h2>New Class</h2>
+            <form id="post-trip">
+                <div class="form-group">
+                <label for="department">Department: </label>
+                <input id="department" type="text" class="form-control" placeholder="CS">
+                </div>
+                <div class="form-group">
+                <label for="course">Course: </label>
+                <input id="course" type="text" class="form-control"  placeholder="1530">
+                </div>
+                <div class="form-group">
+                <label for="section">Section: </label>
+                <input id="section" type="text" class="form-control" placeholder="13350">
+                </div>
+                <div class="form-group">
+                <label for="term">Term: </label>
+                <input id="term" type="text" class="form-control" placeholder="2204">
+                </div>
+                <button id = "poster" onclick = "posting()" type="button" class="btn btn-primary">Submit</button> 
+            </form>
+            </div>
+            <!-- end of form -->
+        </div>
+      </div>
+
+    </section>
+    <!-- END section -->
+
+
+    
+
+    <footer class="pb_footer bg-light" role="contentinfo">
+      <div class="container">
+        <div class="row text-center">
+          <div class="col">
+            <ul class="list-inline">
+              <li class="list-inline-item"><a href="#" class="p-2"><i class="fa fa-facebook"></i></a></li>
+              <li class="list-inline-item"><a href="#" class="p-2"><i class="fa fa-twitter"></i></a></li>
+              <li class="list-inline-item"><a href="#" class="p-2"><i class="fa fa-linkedin"></i></a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col text-center">
+            <p class="pb_font-14">&copy; 2020. All Rights Reserved. <br>  <a href="https://uicookies.com/bootstrap-html-templates/">Bootstrap Templates</a> by uiCookies</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+{% endblock %}
